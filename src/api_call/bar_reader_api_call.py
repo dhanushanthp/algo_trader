@@ -38,33 +38,15 @@ class IBapi(EWrapper, EClient):
 
     def historicalDataUpdate(self, reqId: int, bar: BarData):
         # With the 5sec refresh, this will be one of the filter to avoid overloaded responses through the process
-        if bar.volume > 0:
+        # Sometimes the bar count is -2147483536, that created duplicated timestamp
+        if (bar.volume > 0) and (bar.barCount > 0):
+            # When the time the API call on exact time the machine seconds will be 0. The data will be push to file on exact time
             if datetime.datetime.now().second == 0:
                 print(bar.date)
 
                 with open('realtime_data/data.csv', 'a') as file:
                     file.write(f'{bar.date},{bar.open},{bar.high},{bar.low},'
                                f'{bar.close},{bar.barCount},{bar.volume},{bar.average}\n')
-
-            # Collect data as bar for each 5 second frequency over 1 min period
-            # self.data_collection.append(bar)
-            #
-            # # TODO Need to think about a way to trigger the data on time. currently it's 5 sec delay because of API limitation on time change
-            # """
-            # One option I thought is to check the 60 sec on machine time and push the data.
-            # update: Can't apply this logic, Since the API frequency calls are not consistant
-            # """
-            # if self.previous_ts != bar.date:
-            #     if len(self.data_collection) > 1:
-            #         previous_bar = self.data_collection[-2]
-            #         with open('realtime_data/data.csv', 'a') as file:
-            #             file.write(f'{previous_bar.date},{previous_bar.open},{previous_bar.high},{previous_bar.low},'
-            #                        f'{previous_bar.close},{previous_bar.barCount},{previous_bar.volume},{previous_bar.average}\n')
-            #
-            #     self.previous_ts = bar.date
-            #     # Reset the list for next minute of data with 5 sec frequency
-            #     # Reset and adding first bar from new timeframe(e.g. 1min, 5 min) to the collection
-            #     self.data_collection = [bar]
 
 
 def main():
