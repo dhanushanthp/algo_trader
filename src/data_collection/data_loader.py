@@ -2,12 +2,14 @@ from src.view.visualize_data import Visualize
 from src.utils.data_util import DataUtil
 import pandas as pd
 import json
+from datetime import date
 
 
 class DataLoader:
     def __init__(self):
         self.visual_ref = Visualize()
         self.data_util_ref = DataUtil()
+        self.today = str(date.today())
 
     def get_candles_data(self):
         """
@@ -18,7 +20,7 @@ class DataLoader:
         df = self.data_util_ref.pre_data_process(df)
         output = self.visual_ref.get_candles_visual_data(df)
 
-        return json.dumps([output['data'][-30:], output['annotations']])
+        return json.dumps([output['data'][-30:], output['annotations'], self.today])
 
     def get_prediction_data(self):
         """

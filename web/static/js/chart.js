@@ -38,6 +38,9 @@ $.getJSON(url, function(response) {
     // Generated annotation from server side
     annotation_dict = response[1]
 
+    // Title
+    title = response[2]
+
     // Update Data
     chart.updateSeries([{
         name: 'Candles',
@@ -49,4 +52,11 @@ $.getJSON(url, function(response) {
     for (let i = 0; i < annotation_dict.length; i++) {
         chart.addXaxisAnnotation(annotation_dict[i]);
     }
+
+    chart.updateOptions({
+      title: {
+        text: title
+      }
+    })
+
 });

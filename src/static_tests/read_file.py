@@ -20,6 +20,6 @@ class FileRead:
 
         output = self.visual_ref.get_candles_visual_data(df)
 
-        return json.dumps([output['data'][-30:], output['annotations']])
+        return json.dumps([output['data'], output['annotations'], f'{day}'])
 
 

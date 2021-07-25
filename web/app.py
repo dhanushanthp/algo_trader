@@ -17,7 +17,7 @@ def get_data():
     data_loader = DataLoader()
 
     # Load the data from history
-    # data = obj_ref.get_data('20210501')
+    # data = obj_ref.get_data('20210721')
     data = data_loader.get_candles_data()
 
     return app.response_class(

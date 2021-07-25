@@ -1,6 +1,7 @@
 import talib
 from src.strategies.candle_stick import CandleStick
 from src.model_training.prediction import Prediction
+import collections
 
 
 class Visualize:
@@ -27,12 +28,34 @@ class Visualize:
 
     @staticmethod
     def tag_direction(direction):
+        """
+        Some candle pattern contains the direction of the move. This will capture the direction based on the onehot encode values
+        :param direction:
+        :return:
+        """
         if direction > 0:
             return ' +'
         elif direction < 0:
             return ' -'
         else:
             return ''
+
+    @staticmethod
+    def direction_prob(directions: list):
+        """
+        Find the direction of the next candle based on current candle patterns and suggested directions
+        :param directions:
+        :return:
+        """
+        #  Push the list to collections
+        counter = collections.Counter(directions)
+        # Get the total count
+        total_patterns = sum(counter.values())
+        # Direction with high count and Direction
+        direction, count = counter.most_common(1)[0]
+
+        # Generate string output to show -> Direction, Candle ratio, and winning probability
+        return f'[{direction}, {count}/{total_patterns}, {round((count / total_patterns) * 100)}%]'
 
     def get_candles_visual_data(self, data):
         """
@@ -58,7 +81,7 @@ class Visualize:
                                value_name="pattern_check")
 
         # Rename the candle pattens
-        candles['cdl_pattern'] = candles['cdl_pattern'].apply(lambda x: x.replace('CDL', '')[0:4])
+        candles['cdl_pattern'] = candles['cdl_pattern'].apply(lambda x: x.replace('CDL', ''))
         # Convert as bool values, pick only timeframe with patterns
         candles = candles[candles['pattern_check'].astype(bool)]
 
@@ -67,14 +90,39 @@ class Visualize:
         candles['cdl_pattern'] = candles['cdl_pattern'] + candles['direction']
 
         # Combine by time to check multiple intersections
-        candles = candles.groupby(['date_epoch'])['cdl_pattern'].agg(list).reset_index()
+        candles_agg = candles.groupby(['date_epoch'])['cdl_pattern'].agg(list).reset_index()
+
         # Convert list as String
-        candles['cdl_pattern'] = candles['cdl_pattern'].apply(lambda x: ' | '.join(x))
+        candles_agg['cdl_pattern'] = candles_agg['cdl_pattern'].apply(lambda x: ' | '.join(x))
+
+        # Generate direction probability
+        direction_agg = candles.groupby(['date_epoch'])['direction'].agg(list).reset_index()
+        # Number of candles
+        direction_agg['cdl_count'] = direction_agg['direction'].apply(lambda x: len(x))
+        direction_agg['direction'] = direction_agg['direction'].apply(lambda x: self.direction_prob(x))
+
+        # Merge candles with the direction probability
+        candles_agg = candles_agg.merge(direction_agg, on='date_epoch')
+
+        """
+        ALGORITHM
+        - Count the total number of patterns for a candle
+        - Keep the candle which has more than 3 patterns ( Higher the patterns higher the confirmation)
+        - Filter by winning chance of 50% ( TODO May be later)
+        """
+        # Candle more than 3
+        candles_agg = candles_agg[candles_agg['cdl_count'] >= 3].copy()
+        candles_agg.drop(['cdl_count'], axis=1, inplace=True)
 
         # Prepare the annotation list of dictionary into "apexcharts" acceptable format
         annotations = []
-        for element in candles.values:
-            annotations.append({'x': int(element[0]), 'label': {'text': element[1]}})
+        for element in candles_agg.values:
+            # annotations.append({'x': int(element[0]), 'label': {'text': f'{element[1]} {element[2]}'}})
+            annotations.append({'x': int(element[0]),
+                                'label': {'text': f'{element[2]}',
+                                          'style': {'fontSize': '15px',
+                                                    'background': '#fff',
+                                                    'color': '#777'}}})
 
         return {'data': visual_data, 'annotations': annotations}
 
