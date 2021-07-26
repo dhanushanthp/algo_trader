@@ -18,17 +18,18 @@ class Simulator:
 
         lines = [','.join(list(str(x) for x in i)) for i in data.values]
 
-        pre_lines = '\n'.join((lines[1:20]))
+        pre_lines = '\n'.join((lines[1:15]))
         with open('realtime_data/data.csv', 'w') as file:
-            file.write(''.join(pre_lines))
+            file.write(''.join(pre_lines) + '\n')
 
         # Skip the header
-        for line in tqdm(lines[20:]):
+        for line in tqdm(lines[15:]):
             time.sleep(60)
             with open('realtime_data/data.csv', 'a') as file:
                 file.write(line + '\n')
+            time.sleep(60)
 
 
 if __name__ == '__main__':
     simulator = Simulator()
-    simulator.write_file_n_min_interval('20210723')
+    simulator.write_file_n_min_interval('20210623')

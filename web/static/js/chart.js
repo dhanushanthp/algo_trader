@@ -1,7 +1,7 @@
 var options = {
     series: [],
     chart: {
-        height: 700,
+        height: 1000,
         type: 'candlestick',
     },
     title: {

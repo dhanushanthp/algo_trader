@@ -11,10 +11,10 @@ class FileRead:
         self.visual_ref = Visualize()
         self.data_util_ref = DataUtil()
 
-    def get_data(self, day):
+    def get_data(self, day, stock):
         # This provide the previous day night and current day mid morning day
 
-        df = pd.read_csv(f'data/STK/1_min/TSLA/{day}.csv')
+        df = pd.read_csv(f'data/STK/1_min/{stock}/{day}.csv')
 
         df = self.data_util_ref.pre_data_process(df)
 
