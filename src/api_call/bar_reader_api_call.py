@@ -38,7 +38,7 @@ class IBapi(EWrapper, EClient):
 
     def historicalDataUpdate(self, reqId: int, bar: BarData):
         # With the 5sec refresh, this will be one of the filter to avoid overloaded responses through the process
-        if bar.volume > 0:
+        if (bar.volume > 0) and (bar.barCount > 0):
             # if datetime.datetime.now().second == 0:
             #     print(bar.date)
             #

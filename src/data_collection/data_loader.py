@@ -20,7 +20,7 @@ class DataLoader:
         df = self.data_util_ref.pre_data_process(df)
         output = self.visual_ref.get_candles_visual_data(df)
 
-        return json.dumps([output['data'][-30:], output['annotations'], self.today])
+        return json.dumps([output['data'][-45:], output['annotations'], self.today])
 
     def get_prediction_data(self):
         """

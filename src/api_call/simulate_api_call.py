@@ -24,7 +24,6 @@ class Simulator:
 
         # Skip the header
         for line in tqdm(lines[15:]):
-            time.sleep(60)
             with open('realtime_data/data.csv', 'a') as file:
                 file.write(line + '\n')
             time.sleep(60)
@@ -32,4 +31,4 @@ class Simulator:
 
 if __name__ == '__main__':
     simulator = Simulator()
-    simulator.write_file_n_min_interval('20210723')
+    simulator.write_file_n_min_interval('20210706')
