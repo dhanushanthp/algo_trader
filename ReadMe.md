@@ -10,3 +10,6 @@ CandleStickPatterns
 'CDLRISEFALL3METHODS', 'CDLSEPARATINGLINES', 'CDLSHOOTINGSTAR', 'CDLSHORTLINE', 'CDLSPINNINGTOP', 'CDLSTALLEDPATTERN', 'CDLSTICKSANDWICH', 
 'CDLTAKURI', 'CDLTASUKIGAP', 'CDLTHRUSTING', 'CDLTRISTAR', 'CDLUNIQUE3RIVER', 'CDLUPSIDEGAP2CROWS', 'CDLXSIDEGAP3METHODS'
 ```
+
+Request Limitation
+https://interactivebrokers.github.io/tws-api/historical_limitations.html#:~:text=The%20maximum%20number%20of%20simultaneous,requests%20pending%20at%20a%20time.

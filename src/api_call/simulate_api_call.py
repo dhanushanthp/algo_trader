@@ -32,4 +32,4 @@ class Simulator:
 
 if __name__ == '__main__':
     simulator = Simulator()
-    simulator.write_file_n_min_interval('20210623')
+    simulator.write_file_n_min_interval('20210723')

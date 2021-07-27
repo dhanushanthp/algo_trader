@@ -11,14 +11,19 @@ class Visualize:
 
         self.prediction = Prediction()
 
-        self.cdl_patterns = talib.get_function_groups()['Pattern Recognition']
+        # self.cdl_patterns = talib.get_function_groups()['Pattern Recognition']
 
-        # self.cdl_patterns = ['CDLDOJI', 'CDLLONGLEGGEDDOJI', 'CDLENGULFING', 'CDLHARAMI', 'CDL3OUTSIDE',
-        #                      'CDLHAMMER', 'CDLHARAMICROSS', 'CDLDRAGONFLYDOJI', 'CDLDOJISTAR',
-        #                      'CDLGRAVESTONEDOJI', 'CDLMATCHINGLOW', 'CDL3INSIDE', 'CDLINVERTEDHAMMER', 'CDLSHOOTINGSTAR',
-        #                      'CDLMORNINGSTAR', 'CDLEVENINGSTAR', 'CDL3LINESTRIKE', 'CDLMORNINGDOJISTAR', 'CDLEVENINGDOJISTAR',
-        #                      'CDLPIERCING', 'CDLTRISTAR', 'CDL3WHITESOLDIERS', 'CDLIDENTICAL3CROWS', 'CDLRISEFALL3METHODS',
-        #                      'CDL2CROWS', 'CDL3BLACKCROWS']
+        self.cdl_patterns = ['CDLKICKING', 'CDLENGULFING', 'CDLHARAMI', 'CDLHARAMICROSS',
+                             'CDLDOJI', 'CDLLONGLEGGEDDOJI', 'CDLDRAGONFLYDOJI', 'CDLDOJISTAR', 'CDLGRAVESTONEDOJI', 'CDLSPINNINGTOP',
+                             'CDLHAMMER', 'CDLINVERTEDHAMMER', 'CDLHANGINGMAN',
+                             'CDLSHOOTINGSTAR', 'CDLMORNINGSTAR', 'CDLEVENINGSTAR',
+                             'CDLMORNINGDOJISTAR', 'CDLEVENINGDOJISTAR',
+                             'CDLPIERCING', 'CDL3WHITESOLDIERS', 'CDL3BLACKCROWS',
+                             'CDLTRISTAR', 'CDLABANDONEDBABY']
+
+        # remove some of the indecision and less frequent candles from visual. Still this candles will be counted
+        # self.cdl_ignore = ['CDLDOJI']
+        self.cdl_ignore = ['CDLSPINNINGTOP', 'CDLENGULFING', 'CDL3INSIDE', 'CDL3LINESTRIKE', 'CDL3OUTSIDE', 'CDLHARAMICROSS']
 
         """
         'CDLBELTHOLD', 'CDLLONGLINE', 'CDLHIKKAKE', 'CDLHIKKAKEMOD'
@@ -80,26 +85,28 @@ class Visualize:
                                var_name="cdl_pattern",
                                value_name="pattern_check")
 
-        # Rename the candle pattens
-        candles['cdl_pattern'] = candles['cdl_pattern'].apply(lambda x: x.replace('CDL', ''))
         # Convert as bool values, pick only timeframe with patterns
         candles = candles[candles['pattern_check'].astype(bool)]
 
         # Add direction of the candle,
         candles['direction'] = candles['pattern_check'].apply(lambda x: self.tag_direction(x))
-        candles['cdl_pattern'] = candles['cdl_pattern'] + candles['direction']
-
-        # Combine by time to check multiple intersections
-        candles_agg = candles.groupby(['date_epoch'])['cdl_pattern'].agg(list).reset_index()
-
-        # Convert list as String
-        candles_agg['cdl_pattern'] = candles_agg['cdl_pattern'].apply(lambda x: ' | '.join(x))
 
         # Generate direction probability
         direction_agg = candles.groupby(['date_epoch'])['direction'].agg(list).reset_index()
         # Number of candles
         direction_agg['cdl_count'] = direction_agg['direction'].apply(lambda x: len(x))
         direction_agg['direction'] = direction_agg['direction'].apply(lambda x: self.direction_prob(x))
+
+        # Filter most common and indecision candles, This can be tuned to vice versa. only valid candles to show
+        # candles = candles[candles['cdl_pattern'].isin(self.cdl_ignore)]
+
+        # Rename the candle pattens
+        candles['cdl_pattern'] = candles['cdl_pattern'].apply(lambda x: x.replace('CDL', '')[:6])
+        candles['cdl_pattern'] = candles['cdl_pattern'] + candles['direction']
+
+        # Combine by time to check multiple intersections and convert as string
+        candles_agg = candles.groupby(['date_epoch'])['cdl_pattern'].agg(list).reset_index()
+        candles_agg['cdl_pattern'] = candles_agg['cdl_pattern'].apply(lambda x: ' | '.join(x))
 
         # Merge candles with the direction probability
         candles_agg = candles_agg.merge(direction_agg, on='date_epoch')
@@ -111,15 +118,15 @@ class Visualize:
         - Filter by winning chance of 50% ( TODO May be later)
         """
         # Candle more than 3
-        candles_agg = candles_agg[candles_agg['cdl_count'] >= 3].copy()
-        candles_agg.drop(['cdl_count'], axis=1, inplace=True)
+        # candles_agg = candles_agg[candles_agg['cdl_count'] >= 3].copy()
+        # candles_agg.drop(['cdl_count'], axis=1, inplace=True)
 
         # Prepare the annotation list of dictionary into "apexcharts" acceptable format
+        # Element (2) provide the percentage of candle contribution with direction. Now I have commented out from below output
         annotations = []
         for element in candles_agg.values:
-            # annotations.append({'x': int(element[0]), 'label': {'text': f'{element[1]} {element[2]}'}})
             annotations.append({'x': int(element[0]),
-                                'label': {'text': f'{element[2]}',
+                                'label': {'text': f'{element[1]}',
                                           'style': {'fontSize': '15px',
                                                     'background': '#fff',
                                                     'color': '#777'}}})

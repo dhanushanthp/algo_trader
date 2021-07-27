@@ -4,4 +4,4 @@ class Config:
 
     @staticmethod
     def get_filter_time_range():
-        return {'start': '21:15', 'end': '23:59'}
+        return {'start': '21:15', 'end': '04:00'}
