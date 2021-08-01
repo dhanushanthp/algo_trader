@@ -82,7 +82,10 @@ def main():
     contract.primaryExchange = 'NASDAQ'
 
     # Remove realtime data file
-    os.remove('realtime_data/data.csv')
+    try:
+        os.remove('realtime_data/data.csv')
+    except Exception:
+        pass
 
     # Request historical candles
     app.reqHistoricalData(1009, contract, "", "1 D", "1 min", "TRADES", 0, 1, True, [])
