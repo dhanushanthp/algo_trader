@@ -1,3 +1,6 @@
+# Description
+Generate candlestick patterns in realtime using IBAPI bar data. The geneate candlestick patterns will be displayed in web app in realtime with around 10 seconds delay.
+
 CandleStickPatterns
 ```
 'CDL2CROWS', 'CDL3BLACKCROWS', 'CDL3INSIDE', 'CDL3LINESTRIKE', 'CDL3OUTSIDE', 'CDL3STARSINSOUTH', 'CDL3WHITESOLDIERS', 
